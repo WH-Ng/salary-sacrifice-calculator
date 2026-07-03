@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salary Sacrifice & HECS Ledger — FY2026-27</title>
+<style>
+  :root {
+    --paper: #eef1ee;
+    --paper-raised: #ffffff;
+    --ink: #16261f;
+    --ink-soft: #57685f;
+    --rule: #c9d2c9;
+    --ledger: #143b34;
+    --ledger-dim: #2f5b52;
+    --gain: #1f6e4a;
+    --gain-bg: #e5f3ea;
+    --gold: #a9761d;
+    --gold-bg: #f7eddb;
+    --mono: 'IBM Plex Mono', 'SF Mono', Menlo, monospace;
+    --serif: 'Source Serif 4', Georgia, serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    -webkit-font-smoothing: antialiased;
+    padding: 40px 20px 80px;
+  }
+
+  @font-face {
+    font-family: 'Source Serif 4';
+    src: local('Georgia');
+  }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  header.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 2px solid var(--ledger);
+    padding-bottom: 18px;
+    margin-bottom: 6px;
+  }
+
+  .brand {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ledger-dim);
+  }
+
+  h1 {
+    font-size: 30px;
+    margin: 4px 0 0;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .fy-tag {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--ledger);
+    color: var(--paper);
+    padding: 6px 12px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 28px;
+    margin-top: 32px;
+    align-items: start;
+  }
+
+  @media (max-width: 820px) {
+    .grid { grid-template-columns: 1fr; }
+    .panel.sticky { position: static; }
+  }
+
+  .panel {
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 24px;
+  }
+
+  .panel.sticky {
+    position: sticky;
+    top: 20px;
+  }
+
+  .field {
+    margin-bottom: 20px;
+  }
+
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+
+  .input-row {
+    display: flex;
+    align-items: center;
+    border-bottom: 1.5px solid var(--rule);
+    padding-bottom: 4px;
+    transition: border-color 0.15s;
+  }
+
+  .input-row:focus-within { border-color: var(--ledger); }
+
+  .input-row .prefix, .input-row .suffix {
+    font-family: var(--mono);
+    color: var(--ink-soft);
+    font-size: 15px;
+  }
+
+  input[type="number"] {
+    border: none;
+    background: transparent;
+    font-family: var(--mono);
+    font-size: 17px;
+    color: var(--ink);
+    width: 100%;
+    padding: 4px 6px;
+    outline: none;
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"]::placeholder {
+    color: #a3ada5;
+    opacity: 1;
+  }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .checkbox-row input { width: 16px; height: 16px; accent-color: var(--ledger); cursor: pointer; }
+  .checkbox-row span { font-size: 14px; color: var(--ink); }
+
+  .hint {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
+  .cap-warning {
+    margin-top: 18px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--gold);
+    background: var(--gold-bg);
+    border-radius: 4px;
+    padding: 10px 12px;
+    line-height: 1.5;
+    display: none;
+  }
+
+  .cap-warning.show { display: block; }
+
+  /* Results side */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 620px) {
+    .compare { grid-template-columns: 1fr; }
+  }
+
+  .ledger-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .ledger-card .head {
+    background: var(--ledger);
+    color: var(--paper);
+    padding: 12px 18px;
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .ledger-card.highlight .head { background: var(--gain); }
+
+  .line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 18px;
+    border-bottom: 1px dashed var(--rule);
+    font-size: 14px;
+  }
+
+  .line .label { color: var(--ink-soft); }
+  .line .value { font-family: var(--mono); font-size: 14px; }
+  .line.neg .value { color: #a13a3a; }
+  .line.total {
+    border-bottom: none;
+    border-top: 2px solid var(--ledger);
+    font-weight: 600;
+    padding-top: 12px;
+  }
+  .line.total .value { font-size: 17px; }
+  .line.sub .label { padding-left: 14px; font-size: 12.5px; }
+  .line.sub .value { font-size: 12.5px; }
+
+  .delta-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  @media (max-width: 620px) {
+    .delta-row { grid-template-columns: 1fr; }
+  }
+
+  .delta-banner {
+    margin-top: 0;
+    background: var(--gain-bg);
+    border: 1px solid var(--gain);
+    border-radius: 6px;
+    padding: 16px 20px;
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--gain);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .delta-banner.negative {
+    background: #fbeceb;
+    border-color: #a13a3a;
+    color: #a13a3a;
+  }
+
+  .delta-banner .big { font-size: 20px; font-weight: 600; }
+
+  footer.note {
+    margin-top: 30px;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    border-top: 1px solid var(--rule);
+    padding-top: 14px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <div class="brand">Take-home / Super / HECS Ledger</div>
+      <h1>Salary sacrifice calculator</h1>
+    </div>
+    <div class="fy-tag" id="fyTag">FY2026–27 rates</div>
+  </header>
+
+  <div class="grid">
+
+    <div class="panel sticky">
+      <div class="field">
+        <label for="fy">Financial year</label>
+        <div class="input-row" style="border-bottom:1.5px solid var(--rule);">
+          <select id="fy" style="border:none;background:transparent;font-family:var(--mono);font-size:15px;color:var(--ink);width:100%;padding:4px 6px;outline:none;">
+            <option value="2026-27" selected>FY2026–27 (from 1 Jul 2026)</option>
+            <option value="2025-26">FY2025–26 (1 Jul 2025 – 30 Jun 2026)</option>
+          </select>
+        </div>
+        <div class="hint" id="fyHint"></div>
+      </div>
+
+      <div class="field">
+        <label for="income">Gross salary</label>
+        <div class="input-row">
+          <span class="prefix">$</span>
+          <input type="number" id="income" placeholder="80000" step="500">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="superRate">Employer super rate</label>
+        <div class="input-row">
+          <input type="number" id="superRate" placeholder="12" step="0.1">
+          <span class="suffix">%</span>
+        </div>
+        <div class="hint" id="sgHint"></div>
+      </div>
+
+      <div class="field">
+        <label for="sacrifice">Salary sacrifice to super</label>
+        <div class="input-row">
+          <span class="prefix">$</span>
+          <input type="number" id="sacrifice" placeholder="0" step="500">
+        </div>
+        <div class="cap-warning" id="capWarning"></div>
+      </div>
+
+      <div class="field">
+        <label class="checkbox-row" for="hasHecs">
+          <input type="checkbox" id="hasHecs">
+          <span>I have a HECS/HELP debt</span>
+        </label>
+      </div>
+    </div>
+
+    <div>
+      <div class="compare">
+
+        <div class="ledger-card">
+          <div class="head"><span>No sacrifice</span><span id="noSac-badge"></span></div>
+          <div class="line"><span class="label">Salary</span><span class="value" id="ns-salary"></span></div>
+          <div class="line"><span class="label">+ Super (employer)</span><span class="value" id="ns-super"></span></div>
+          <div class="line"><span class="label">Package total</span><span class="value" id="ns-package"></span></div>
+          <div class="line neg"><span class="label">Income tax</span><span class="value" id="ns-tax"></span></div>
+          <div class="line neg"><span class="label">Medicare levy (2%)</span><span class="value" id="ns-medicare"></span></div>
+          <div class="line neg"><span class="label">Super contributions tax (15%)</span><span class="value" id="ns-superTax"></span></div>
+          <div class="line neg" id="ns-hecs-row"><span class="label">HECS repayment</span><span class="value" id="ns-hecs"></span></div>
+          <div class="line total"><span class="label">Take-home pay</span><span class="value" id="ns-takehome"></span></div>
+          <div class="line sub"><span class="label">Super after tax</span><span class="value" id="ns-superAfter"></span></div>
+          <div class="line total"><span class="label">Total wealth</span><span class="value" id="ns-wealth"></span></div>
+        </div>
+
+        <div class="ledger-card highlight">
+          <div class="head"><span>With sacrifice</span><span id="sac-badge"></span></div>
+          <div class="line"><span class="label">Salary</span><span class="value" id="s-salary"></span></div>
+          <div class="line"><span class="label">+ Super (employer + sacrifice)</span><span class="value" id="s-super"></span></div>
+          <div class="line"><span class="label">Package total</span><span class="value" id="s-package"></span></div>
+          <div class="line neg"><span class="label">Income tax</span><span class="value" id="s-tax"></span></div>
+          <div class="line neg"><span class="label">Medicare levy (2%)</span><span class="value" id="s-medicare"></span></div>
+          <div class="line neg"><span class="label">Super contributions tax (15%)</span><span class="value" id="s-superTax"></span></div>
+          <div class="line neg" id="s-hecs-row"><span class="label">HECS repayment</span><span class="value" id="s-hecs"></span></div>
+          <div class="line total"><span class="label">Take-home pay</span><span class="value" id="s-takehome"></span></div>
+          <div class="line sub"><span class="label">Super after tax</span><span class="value" id="s-superAfter"></span></div>
+          <div class="line total"><span class="label">Total wealth</span><span class="value" id="s-wealth"></span></div>
+        </div>
+
+      </div>
+
+      <div class="delta-row">
+        <div class="delta-banner" id="deltaBanner">
+          <span>Total wealth change</span>
+          <span class="big" id="deltaValue"></span>
+        </div>
+        <div class="delta-banner" id="takehomeDeltaBanner">
+          <span>Take-home pay change</span>
+          <span class="big" id="takehomeDeltaValue"></span>
+        </div>
+      </div>
+
+      <footer class="note">
+        Brackets, HECS thresholds, SG rate and concessional cap switch with the financial year selected above.
+        Medicare levy modelled as a flat 2% (low-income phase-in below ~$29,207 ignored — negligible above ~$50k income).
+        Super contributions taxed at 15% on the way in. HECS/HELP repayment income adds back salary-sacrificed super,
+        so sacrificing doesn't reduce your HECS repayment. FY2024-25 and earlier used a different whole-of-income HECS
+        method (not modelled here) — ask to have it added if you need it. General information only, not financial or
+        tax advice — figures can change with ATO indexation and legislation.
+      </footer>
+    </div>
+  </div>
+</div>
+
+<script>
+const FY_RULES = {
+  '2026-27': {
+    label: 'FY2026–27 rates',
+    hint: 'From 1 Jul 2026: second bracket cut to 15%, HECS threshold indexed to $69,528, concessional cap $32,500.',
+    sgHint: 'Standard SG minimum is 12% for 2026-27. Use your actual rate if your employer/award pays more.',
+    brackets: [
+      [0, 18200, 0],
+      [18200, 45000, 0.15],
+      [45000, 135000, 0.30],
+      [135000, 190000, 0.37],
+      [190000, Infinity, 0.45]
+    ],
+    hecsT1: 69528,
+    hecsT2: 129717,
+    concessionalCap: 32500
+  },
+  '2025-26': {
+    label: 'FY2025–26 rates',
+    hint: '1 Jul 2025 – 30 Jun 2026: second bracket 16%, HECS marginal system introduced with $67,000 threshold, concessional cap $30,000.',
+    sgHint: 'Standard SG minimum is 12% for 2025-26 (reached 12% on 1 Jul 2025). Use your actual rate if your employer/award pays more.',
+    brackets: [
+      [0, 18200, 0],
+      [18200, 45000, 0.16],
+      [45000, 135000, 0.30],
+      [135000, 190000, 0.37],
+      [190000, Infinity, 0.45]
+    ],
+    hecsT1: 67000,
+    hecsT2: 125000,
+    concessionalCap: 30000
+  }
+};
+
+const fmt = n => (n < 0 ? '-$' : '$') + Math.round(Math.abs(n)).toLocaleString('en-AU');
+
+function incomeTax(taxable, brackets) {
+  let tax = 0;
+  const segs = [];
+  for (const [lo, hi, rate] of brackets) {
+    if (taxable > lo) {
+      const amt = Math.min(taxable, hi) - lo;
+      tax += amt * rate;
+      segs.push({ lo, hi, rate, amt });
+    } else {
+      segs.push({ lo, hi, rate, amt: 0 });
+    }
+  }
+  return { tax, segs };
+}
+
+function hecsRepayment(repaymentIncome, hasHecs, t1, t2) {
+  if (!hasHecs) return 0;
+  if (repaymentIncome <= t1) return 0;
+  if (repaymentIncome <= t2) return (repaymentIncome - t1) * 0.15;
+  const base = (t2 - t1) * 0.15;
+  const tier2 = (repaymentIncome - t2) * 0.17;
+  const marginal = base + tier2;
+  const flatCap = repaymentIncome * 0.10;
+  return Math.min(marginal, flatCap);
+}
+
+function medicare(taxable) {
+  return taxable > 29207 ? taxable * 0.02 : 0;
+}
+
+function computeScenario(salary, superAmount, hecsRepaymentIncome, hasHecs, rules) {
+  const { tax, segs } = incomeTax(salary, rules.brackets);
+  const med = medicare(salary);
+  const superTax = superAmount * 0.15;
+  const hecs = hecsRepayment(hecsRepaymentIncome, hasHecs, rules.hecsT1, rules.hecsT2);
+  const takehome = salary - tax - med - hecs;
+  const superAfter = superAmount - superTax;
+  const wealth = takehome + superAfter;
+  return { tax, med, superTax, hecs, takehome, superAfter, wealth, segs, salary, superAmount };
+}
+
+function render() {
+  const fyKey = document.getElementById('fy').value;
+  const rules = FY_RULES[fyKey];
+  document.getElementById('fyTag').textContent = rules.label;
+  document.getElementById('fyHint').textContent = rules.hint;
+  document.getElementById('sgHint').textContent = rules.sgHint;
+
+  const income = parseFloat(document.getElementById('income').value) || 0;
+  const superRate = (parseFloat(document.getElementById('superRate').value) || 0) / 100;
+  const sacrifice = Math.max(0, parseFloat(document.getElementById('sacrifice').value) || 0);
+  const hasHecs = document.getElementById('hasHecs').checked;
+
+  const mandatorySuper = income * superRate;
+
+  // No sacrifice scenario
+  const ns = computeScenario(income, mandatorySuper, income, hasHecs, rules);
+
+  // With sacrifice scenario
+  const newSalary = Math.max(0, income - sacrifice);
+  const totalSuper = mandatorySuper + sacrifice;
+  // HECS repayment income adds back reportable super contributions (the sacrificed amount)
+  const s = computeScenario(newSalary, totalSuper, newSalary + sacrifice, hasHecs, rules);
+
+  document.getElementById('ns-salary').textContent = fmt(income);
+  document.getElementById('ns-super').textContent = fmt(mandatorySuper);
+  document.getElementById('ns-package').textContent = fmt(income + mandatorySuper);
+  document.getElementById('ns-tax').textContent = fmt(-ns.tax);
+  document.getElementById('ns-medicare').textContent = fmt(-ns.med);
+  document.getElementById('ns-superTax').textContent = fmt(-ns.superTax);
+  document.getElementById('ns-hecs').textContent = fmt(-ns.hecs);
+  document.getElementById('ns-hecs-row').style.display = hasHecs ? 'flex' : 'none';
+  document.getElementById('ns-takehome').textContent = fmt(ns.takehome);
+  document.getElementById('ns-superAfter').textContent = fmt(ns.superAfter);
+  document.getElementById('ns-wealth').textContent = fmt(ns.wealth);
+
+  document.getElementById('s-salary').textContent = fmt(newSalary);
+  document.getElementById('s-super').textContent = fmt(totalSuper);
+  document.getElementById('s-package').textContent = fmt(newSalary + totalSuper);
+  document.getElementById('s-tax').textContent = fmt(-s.tax);
+  document.getElementById('s-medicare').textContent = fmt(-s.med);
+  document.getElementById('s-superTax').textContent = fmt(-s.superTax);
+  document.getElementById('s-hecs').textContent = fmt(-s.hecs);
+  document.getElementById('s-hecs-row').style.display = hasHecs ? 'flex' : 'none';
+  document.getElementById('s-takehome').textContent = fmt(s.takehome);
+  document.getElementById('s-superAfter').textContent = fmt(s.superAfter);
+  document.getElementById('s-wealth').textContent = fmt(s.wealth);
+
+  const delta = s.wealth - ns.wealth;
+  const banner = document.getElementById('deltaBanner');
+  banner.classList.toggle('negative', delta < 0);
+  document.getElementById('deltaValue').textContent = (delta >= 0 ? '+' : '') + fmt(delta);
+
+  const takehomeDelta = s.takehome - ns.takehome;
+  const takehomeBanner = document.getElementById('takehomeDeltaBanner');
+  takehomeBanner.classList.toggle('negative', takehomeDelta < 0);
+  document.getElementById('takehomeDeltaValue').textContent = (takehomeDelta >= 0 ? '+' : '') + fmt(takehomeDelta);
+
+  // Concessional cap warning (FY-specific)
+  const capWarning = document.getElementById('capWarning');
+  if (totalSuper > rules.concessionalCap) {
+    capWarning.textContent = `Total concessional contributions ($${Math.round(totalSuper).toLocaleString('en-AU')}) exceed the ${fyKey} cap of $${rules.concessionalCap.toLocaleString('en-AU')} — excess is taxed at your marginal rate, not modelled here.`;
+    capWarning.classList.add('show');
+  } else {
+    capWarning.classList.remove('show');
+  }
+
+}
+
+['fy', 'income', 'superRate', 'sacrifice', 'hasHecs'].forEach(id => {
+  document.getElementById(id).addEventListener('input', render);
+});
+
+render();
+</script>
+</body>
+</html>
