@@ -240,6 +240,106 @@
   .line.sub .label { padding-left: 14px; font-size: 12.5px; }
   .line.sub .value { font-size: 12.5px; }
 
+  .hecs-card {
+    margin-top: 28px;
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .hecs-head {
+    background: var(--ledger);
+    color: var(--paper);
+    padding: 12px 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .hecs-body {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 24px;
+    padding: 22px 20px;
+  }
+
+  @media (max-width: 720px) {
+    .hecs-body { grid-template-columns: 1fr; }
+  }
+
+  .hecs-inputs .field { margin-bottom: 16px; }
+  .hecs-inputs .field:last-child { margin-bottom: 0; }
+
+  .hecs-result {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .hecs-compare {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  @media (max-width: 500px) {
+    .hecs-compare { flex-direction: column; }
+  }
+
+  .hecs-col {
+    flex: 1;
+    text-align: center;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 16px 10px;
+  }
+
+  .hecs-col-label {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+
+  .hecs-col-value {
+    font-family: var(--mono);
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ledger);
+  }
+
+  .hecs-col-sub {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+  }
+
+  .hecs-vs {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+  }
+
+  .hecs-verdict {
+    margin-top: 16px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--ink);
+    background: var(--gold-bg);
+    border-radius: 4px;
+    padding: 12px 16px;
+  }
+
+  .hecs-verdict.lean-hisa {
+    background: var(--gain-bg);
+  }
+
   .delta-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -386,13 +486,62 @@
         </div>
       </div>
 
+      <div class="hecs-card">
+        <div class="hecs-head">Pay off HECS lump sum, or keep it in a HISA?</div>
+        <div class="hecs-body">
+          <div class="hecs-inputs">
+            <div class="field">
+              <label for="hecsBalance">HECS/HELP balance you're weighing up</label>
+              <div class="input-row">
+                <span class="prefix">$</span>
+                <input type="number" id="hecsBalance" placeholder="20000" step="500">
+              </div>
+            </div>
+            <div class="field">
+              <label for="indexRate">HECS indexation rate (annual)</label>
+              <div class="input-row">
+                <input type="number" id="indexRate" value="2.8" step="0.1">
+                <span class="suffix">%</span>
+              </div>
+              <div class="hint">2.8% applied 1 Jun 2026 (lower of CPI/WPI). Update this each May when the ATO confirms the new rate.</div>
+            </div>
+            <div class="field">
+              <label for="hisaRate">HISA rate (pre-tax, advertised)</label>
+              <div class="input-row">
+                <input type="number" id="hisaRate" value="4.5" step="0.1">
+                <span class="suffix">%</span>
+              </div>
+              <div class="hint" id="marginalHint"></div>
+            </div>
+          </div>
+          <div class="hecs-result" id="hecsResult">
+            <div class="hecs-compare">
+              <div class="hecs-col">
+                <div class="hecs-col-label">Clearing HECS saves you</div>
+                <div class="hecs-col-value" id="hecsSaves"></div>
+                <div class="hecs-col-sub">in indexation next year</div>
+              </div>
+              <div class="hecs-vs">vs</div>
+              <div class="hecs-col">
+                <div class="hecs-col-label">Same $ in a HISA earns</div>
+                <div class="hecs-col-value" id="hisaEarns"></div>
+                <div class="hecs-col-sub">after tax, in a year</div>
+              </div>
+            </div>
+            <div class="hecs-verdict" id="hecsVerdict"></div>
+          </div>
+        </div>
+      </div>
+
       <footer class="note">
         Brackets, HECS thresholds, SG rate and concessional cap switch with the financial year selected above.
         Medicare levy modelled as a flat 2% (low-income phase-in below ~$29,207 ignored — negligible above ~$50k income).
         Super contributions taxed at 15% on the way in. HECS/HELP repayment income adds back salary-sacrificed super,
         so sacrificing doesn't reduce your HECS repayment. FY2024-25 and earlier used a different whole-of-income HECS
-        method (not modelled here) — ask to have it added if you need it. General information only, not financial or
-        tax advice — figures can change with ATO indexation and legislation.
+        method (not modelled here) — ask to have it added if you need it. The HECS-vs-HISA comparison uses your gross
+        salary above to estimate your marginal tax rate for the after-tax HISA return, and is a simple one-year
+        indexation-vs-interest comparison, not a full amortised model. General information only, not financial or
+        tax advice — figures can change with ATO indexation, RBA rate moves and legislation.
       </footer>
     </div>
   </div>
@@ -541,9 +690,47 @@ function render() {
     capWarning.classList.remove('show');
   }
 
+  // HECS lump-sum payoff vs HISA comparison
+  const hecsBalance = Math.max(0, parseFloat(document.getElementById('hecsBalance').value) || 0);
+  const indexRate = (parseFloat(document.getElementById('indexRate').value) || 0) / 100;
+  const hisaRate = (parseFloat(document.getElementById('hisaRate').value) || 0) / 100;
+
+  let marginalRate = 0;
+  for (const seg of ns.segs) {
+    if (seg.amt > 0) marginalRate = seg.rate;
+  }
+  if (income > 29207) marginalRate += 0.02; // Medicare levy on the marginal dollar
+
+  document.getElementById('marginalHint').textContent =
+    income > 0 ? `Estimated marginal rate from your gross salary above: ${(marginalRate * 100).toFixed(1)}% (incl. Medicare).` : 'Enter your gross salary above to estimate your marginal tax rate.';
+
+  const indexCost = hecsBalance * indexRate;
+  const hisaAfterTaxReturn = hecsBalance * hisaRate * (1 - marginalRate);
+
+  document.getElementById('hecsSaves').textContent = fmt(indexCost);
+  document.getElementById('hisaEarns').textContent = fmt(hisaAfterTaxReturn);
+
+  const verdictEl = document.getElementById('hecsVerdict');
+  if (hecsBalance <= 0) {
+    verdictEl.textContent = 'Enter a HECS balance above to compare.';
+    verdictEl.classList.remove('lean-hisa');
+  } else {
+    const diff = hisaAfterTaxReturn - indexCost;
+    if (Math.abs(diff) < hecsBalance * 0.001) {
+      verdictEl.textContent = `These are close to a wash at these rates — roughly ${fmt(Math.abs(diff))} apart either way.`;
+      verdictEl.classList.remove('lean-hisa');
+    } else if (diff > 0) {
+      verdictEl.textContent = `At these rates, keeping the $${Math.round(hecsBalance).toLocaleString('en-AU')} in a HISA instead of clearing HECS comes out about ${fmt(diff)} ahead this year, after tax.`;
+      verdictEl.classList.add('lean-hisa');
+    } else {
+      verdictEl.textContent = `At these rates, clearing the $${Math.round(hecsBalance).toLocaleString('en-AU')} HECS balance comes out about ${fmt(-diff)} ahead this year versus the HISA, after tax.`;
+      verdictEl.classList.remove('lean-hisa');
+    }
+  }
+
 }
 
-['fy', 'income', 'superRate', 'sacrifice', 'hasHecs'].forEach(id => {
+['fy', 'income', 'superRate', 'sacrifice', 'hasHecs', 'hecsBalance', 'indexRate', 'hisaRate'].forEach(id => {
   document.getElementById(id).addEventListener('input', render);
 });
 
