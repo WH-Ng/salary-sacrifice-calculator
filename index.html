@@ -84,11 +84,6 @@
     align-items: start;
   }
 
-  @media (max-width: 820px) {
-    .grid { grid-template-columns: 1fr; }
-    .panel.sticky { position: static; }
-  }
-
   .panel {
     background: var(--paper-raised);
     border: 1px solid var(--rule);
@@ -99,6 +94,11 @@
   .panel.sticky {
     position: sticky;
     top: 20px;
+  }
+
+  @media (max-width: 820px) {
+    .grid { grid-template-columns: 1fr; }
+    .panel.sticky { position: static; }
   }
 
   .field {
